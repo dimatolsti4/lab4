@@ -1,0 +1,126 @@
+#include<iostream>
+
+typedef struct Node
+    {
+    int value;
+    struct Node *next;
+    } Node;
+
+void push_left(Node ** head, int value)
+{
+    Node* zxc;
+    zxc = (Node*)malloc(sizeof(Node));
+    zxc->value = value;
+    zxc->next = *head;
+    *head = zxc;
+}
+
+void clear_list(Node ** head)
+{
+    if (head == NULL)
+    {
+        return;
+    }
+    if (*head == NULL)
+    {
+        return;
+    }
+    Node *zxc;
+    zxc = *head;
+    Node *prev;
+    prev = *head;
+    while (zxc->next != NULL)
+    {
+        prev = zxc;
+        zxc = zxc->next;
+    }
+    prev->next = NULL;
+    free(zxc);
+    if (zxc == *head)
+    {
+        *head = NULL;
+    }
+    clear_list(head);
+}
+
+int pop (Node** head, int index)
+{
+    if(*head != NULL)
+    {
+        Node *zxc = *head;
+        int num;
+        if(index != 0)
+        {
+            Node *prev = *head;
+            for(int i = 0; i < index && zxc->next != NULL; ++i)
+            {
+                prev = zxc;
+                zxc = prev->next;
+            }
+            num = zxc->value;
+
+            prev->next = zxc->next;
+        }
+        else
+        {
+            num = (*head)->value;
+            *head = (*head)->next;
+        }
+        free(zxc);
+        return num;
+    }
+}
+
+void zxc_remove(Node** head, int value)
+{
+    if(*head != NULL)
+    {
+        Node* zxc = *head;
+        Node *prev = *head;
+        while (zxc->value != value && zxc->next != NULL)
+        {
+                prev = zxc;
+                zxc = prev->next;
+        }
+        if (zxc->value != value)
+        {
+            return;
+        }
+        if (zxc == *head)
+        {
+            *head = (*head)->next;
+        }
+        prev->next = zxc->next;
+        free(zxc);
+        return;
+    }
+}
+
+
+int main()
+{
+    Node*head = (Node*)malloc(sizeof(Node));
+    head->next = NULL;
+    int a;
+    for (int i = 0; i < 5; ++i)
+    {
+        std::cin >> a;
+        push_left(&head, a);
+    }
+    Node* zxc = head;
+    while (zxc->next != NULL)
+    {
+        std::cout << zxc->value << ' ';
+        zxc = zxc->next;
+    }
+    pop(&head, 3);
+    zxc_remove(&head, 5);
+    zxc = head;
+    while (zxc->next != NULL)
+    {
+        std::cout << zxc->value << ' ';
+        zxc = zxc-> next;
+    }
+    clear_list(&head);
+    return 0;
+}

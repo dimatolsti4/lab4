@@ -1,0 +1,131 @@
+#include <iostream>
+#include <stdlib.h>
+#include <limits.h>
+#include <assert.h>
+#include <string.h>
+
+using namespace std;
+
+unsigned int MAXCAPACITY = (UINT_MAX/3*2);
+
+typedef struct subvector {
+    int *mas;
+    unsigned int top;
+    unsigned int capacity;
+} subvector;
+
+bool init(subvector *qv) 
+{ 
+    qv->capacity = 8;
+    qv->top = 0;
+    qv->mas = (int*)malloc(qv->capacity * sizeof(int));
+    
+    return true;
+}
+
+bool push_back(subvector *qv, int d) 
+{
+    if (qv->top >= qv->capacity) 
+    {
+        if (qv->capacity >= MAXCAPACITY) return false;
+        
+        qv->capacity *= 2;
+        qv->mas = (int*)realloc(qv->mas, qv->capacity * sizeof(int));
+    }
+    
+    qv->mas[qv->top++] = d;
+    
+    return true;
+}
+
+int pop_back(subvector *qv) 
+{
+    assert(qv->top != 0);
+    
+    return qv->mas[--qv->top];
+}
+
+bool resize(subvector *qv, unsigned int new_capacity) 
+{
+    if (new_capacity >= MAXCAPACITY) 
+    {
+        qv->capacity = MAXCAPACITY - 1;
+    }
+    
+    qv->capacity = new_capacity;
+    
+    return true;
+}
+
+void shrink_to_fit(subvector *qv) 
+{
+    assert(qv != NULL);
+    int* ptr = (int*)malloc(qv->top * sizeof(int));
+    memcpy(ptr, qv->mas, sizeof(int));
+    free(qv->mas);
+    qv->mas = ptr;
+    resize(qv, qv->top);
+}
+
+void clear(subvector *qv) 
+{
+    assert(qv != NULL);
+    assert(qv->mas != NULL);
+    qv->mas = (int*)calloc(qv->top, sizeof(int));
+}
+
+void destructor(subvector *qv)
+{
+    assert(qv != NULL);
+    init(qv);
+}
+
+
+
+int main()
+{
+    subvector* qv = (subvector*)malloc(sizeof(subvector));
+    
+    assert(init(qv));
+    
+    for(int i = 0; i < 12; ++i) 
+    {
+        assert(push_back(qv, i * i));
+    }
+    
+    cout << qv->capacity << endl;
+    
+    for(int i = 0; i < 7; ++i) 
+    {
+        cout << pop_back(qv) << ' ';
+    }
+
+    cout << endl;
+
+    assert(resize(qv, 120));
+    cout << qv->capacity << endl;
+
+    shrink_to_fit(qv);
+    cout << qv->capacity << endl;
+
+    pop_back(qv);
+    
+    shrink_to_fit(qv);
+    cout << qv->capacity << endl;
+
+    clear(qv);
+    for (int i = 0; i < qv->capacity; ++i) 
+    {
+        cout << qv->mas[i] << ' ';
+    }
+    
+    cout << endl;
+    
+    destructor(qv);
+    cout << "cap=" << qv->capacity << " top=" << qv->top;
+    
+    free(qv->mas);
+    free(qv);
+    
+    return 0;
+}

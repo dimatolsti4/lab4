@@ -1,0 +1,166 @@
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
+using namespace std;
+
+#define max(a, b) (a>b?a:b)
+
+typedef struct node {
+    struct node* l, * r; // 8, 8
+    int h, val;          // 4, 4
+} node;
+
+int height(node* n) {
+    return (n) ? n->h : 0;
+}
+
+int weight(node* n) {
+    return height(n->r) - height(n->l);
+}
+
+void update_height(node* n) {
+    int l = height(n->l);
+    int r = height(n->r);
+
+    n->h = max(l, r) + 1;
+}
+
+node* r_rotate(node* a, node** root) {
+
+    node* b = a->l;
+    a->l = b->r;
+    b->r = a;
+
+    update_height(a);
+    update_height(b);
+
+    if ((*root) == a)
+        (*root) = b;
+
+    return b;
+}
+
+node* l_rotate(node* b, node** root) {
+
+    node* a = b->r;
+    b->r = a->l;
+    a->l = b;
+
+    update_height(b);
+    update_height(a);
+
+    if ((*root) == b)
+        (*root) = a;
+
+    return a;
+}
+
+node* l_r_rotate(node* n, node** root) {
+    n->l = l_rotate(n->l, root);
+    return r_rotate(n, root);
+}
+
+node* r_l_rotate(node* n, node** root) {
+    n->r = r_rotate(n->r, root);
+    return l_rotate(n, root);
+}
+
+node* balance(node* n, node** root) {
+
+    update_height(n);
+
+    if (weight(n) == 2) {
+        if (weight(n->r) < 0)
+            return r_l_rotate(n, root);
+        else
+            return l_rotate(n, root);
+    }
+
+    if (weight(n) == -2) {
+        if (weight(n->l) > 0)
+            return l_r_rotate(n, root);
+        else
+            return r_rotate(n, root);
+    }
+
+    return n;
+}
+
+node* create_node(node* n, int val) {
+
+    n->h = 1;
+    n->val = val;
+
+    n->l = NULL;
+    n->r = NULL;
+
+    return n;
+}
+
+node* add_node(node* n, node* newn, int current_val, node** root) {
+
+    if (n == NULL)
+        return create_node(newn, current_val);
+
+    if (current_val > n->val)
+        n->r = add_node(n->r, newn, current_val, root);
+    else
+        n->l = add_node(n->l, newn, current_val, root);
+
+    return balance(n, root);
+}
+
+node* search_node(int val, node *root) {
+    if(root) {
+        if (val > root->val) {
+            return search_node(val, root->r);
+        } else if (val < root->val) {
+            return search_node(val, root->l);
+        } else { 
+            return root;
+        }
+    } else {
+        return NULL;
+    }
+}
+
+void print_tree(node *root) {
+    if (root) {
+        print_tree(root->l);
+        cout << root->val << " ";
+        print_tree(root->r);
+    }
+}
+
+int main(void) {
+    int n;
+
+    cin >> n;
+    
+    if (n == 0) {
+        cout << 0;
+        return EXIT_SUCCESS;
+    }
+    
+    node* nodes = (node*)malloc(sizeof(node) * n);
+    node* root = NULL;
+
+    for (int i = 0, val; i < n; ++i) {
+        cin >> val;
+        root = add_node(root, &nodes[i], val, &root);
+    }
+    
+    print_tree(root);
+    
+    cout << "\n" << root->h;
+    cout << "\n" << search_node(2, root)->val;
+    cout << "\n" << search_node(3, root)->val << "\n";
+
+    print_tree(root);
+
+    free(nodes);
+
+    return EXIT_SUCCESS;
+}

@@ -5,38 +5,33 @@
  
 using namespace std;
  
-typedef struct node 
-{
+typedef struct node {
     int val;
     struct node *l;
     struct node *r;
     int h;
 } node;
   
-int h(node *n) 
-{
+int h(node *n) {
     if (n == NULL)
         return 0;
     return n->h;
 }
   
-int max(int a, int b) 
-{
+int max(int a, int b) {
     return (a > b)? a : b;
 }
  
-node *newNode(int val) 
-{
+node *newNode(int val) {
     node* n = (node*)malloc(sizeof(node));
     n->val = val;
-    n->l = NULL;
-    n->r = NULL;
-    n->h = 1;
+    n->l   = NULL;
+    n->r   = NULL;
+    n->h   = 1;
     return(n);
 }
  
-node *rRotate(node *y) 
-{
+node *rRotate(node *y) {
     node *x = y->l;
     node *T2 = x->r;
   
@@ -49,8 +44,7 @@ node *rRotate(node *y)
     return x;
 }
  
-node *lRotate(node *n) 
-{
+node *lRotate(node *n) {
     node *tmp = n->r;
     node *l_sub = tmp->l;
  
@@ -63,26 +57,25 @@ node *lRotate(node *n)
     return tmp;
 }
  
-int getBalance(node *N) 
-{
+int getBalance(node *N) {
     if (N == NULL)
         return 0;
     return h(N->l) - h(N->r);
 }
  
-node *makeBalance(node *root) 
-{
+node *makeBalance(node *root) {
     if (root == NULL) return root;
     
     root->h = 1 + max(h(root->l), h(root->r));
  
     int balance = getBalance(root);
  
-    if (balance > 1 && getBalance(root->l) >= 0) return rRotate(root);
+    if (balance > 1 && getBalance(root->l) >= 0)
+        return rRotate(root);
  
     if (balance > 1 && getBalance(root->l) < 0)
     {
-        root->l = lRotate(root->l);
+        root->l =  lRotate(root->l);
         return rRotate(root);
     }
  
@@ -98,19 +91,15 @@ node *makeBalance(node *root)
     return root;
 }
  
-node *insert(node* node, int val) 
-{
+node *insert(node* node, int val) {
     if (node == NULL) return newNode(val);
   
     if (val < node->val)
-    {
         node->l = insert(node->l, val);
-    }
+    else if (val > node->val)
+        node->r = insert(node->r, val);
     else 
-    {
-        if (val > node->val) node->r = insert(node->r, val);
-        else return node;
-    }
+        return node;
   
     return makeBalance(node);
 }
@@ -131,25 +120,21 @@ node *deleteNode(node* root, int val)
     if (root == NULL)return root;
  
     if ( val < root->val )
-    {
         root->l = deleteNode(root->l, val);
-    }
-    else 
+    else if( val > root->val )
+        root->r = deleteNode(root->r, val);
+    else
     {
-        if( val > root->val ) root->r = deleteNode(root->r, val);
-        else
+        if( (root->l == NULL) || (root->r == NULL) )
         {
-            if( (root->l == NULL) || (root->r == NULL) )
-            {
-                node *temp = root->l != NULL ? root->l : root->r;
-            }
+            node *temp = root->l != NULL ? root->l : root->r;
+  
             if (temp == NULL)
             {
                 temp = root;
                 root = NULL;
             }
-            else 
-            {
+            else {
                 *root = *temp;
             }
             free(temp);
@@ -165,8 +150,7 @@ node *deleteNode(node* root, int val)
     return makeBalance(root);
 }
  
-node *searchNode(int val, node *root) 
-{
+node *searchNode(int val, node *root) {
     if(root) 
     {
         if (val > root->val) 
@@ -199,15 +183,13 @@ void preOrder(node *root)
 int main()
 {
     freopen("out.txt", "w", stdout);
-    node *root = NULL;
+    srand(time(NULL));
     for(int n = 0; n < 1001; ++n){
-        
         node *root = NULL;
-        printf("%d ", n);
-        unsigned int start_time =  clock();
-        for(int i = 0; i < n; ++i)root = insert(root, i);
-        unsigned int end_time = clock();
-        printf("%d\n", (end_time - start_time));
+        unsigned int s =  clock();
+        for(int i = 0; i < n; ++i)root = insert(root, rand()%10000);
+        unsigned int e = clock();
+        printf("%lf\n", (double)(e - s) / CLOCKS_PER_SEC*1000);
     }
     fclose (stdout);
     return 0;

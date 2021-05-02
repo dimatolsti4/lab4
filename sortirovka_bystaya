@@ -1,0 +1,57 @@
+#include <stdlib.h>
+#include  <stdio.h>
+
+void swap(int *a, int *b) 
+{
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
+void quicksort(int* a, int first, int last) 
+{
+    if (first < last) 
+    {
+        int l = first, r = last, middle = a[(l + r) / 2];
+        
+        while (l < r) 
+        {
+            while (a[l] < middle) ++l;
+            while (a[r] > middle) --r;
+            
+            if (l <= r) 
+            {
+                swap(a+l, a+r);
+                
+                l++;
+                r--;
+            }
+        }
+        
+        quicksort(a, first, r);
+        quicksort(a, l, last);
+    }
+}
+
+int main() 
+{
+    int n;
+    if(scanf("%d", &n) != 1) return -1;
+
+    int* a = (int*)malloc(n*sizeof(int));
+    for (int i = 0; i < n; ++i)
+        if(scanf("%d", a + i) != 1) return -1;
+
+    quicksort(a, 0, n - 1);
+
+    for (int i = 0; i < n; i++) 
+    {
+        printf("%d ", a[i]);
+    }
+
+    printf("\n");
+    
+    free(a);
+    
+    return 0;
+}
